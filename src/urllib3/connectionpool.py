@@ -453,7 +453,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
         """
         Get a connection from the pool and perform an HTTP request. This is the
         lowest level call for making a request, so you'll need to specify all
-        the raw details.
+        the raw details. To make HTTP calls, use :func:`urllib3.request.RequestMethods.request`
+        instead.
 
         .. note::
 

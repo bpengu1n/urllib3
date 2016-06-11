@@ -259,3 +259,25 @@ class TestRetry(object):
         retry = Retry(remove_headers_on_redirect=['X-API-Secret'])
 
         assert list(retry.remove_headers_on_redirect) == ['x-api-secret']
+
+
+class RedirectTest(unittest.TestCase):
+
+    def setUp(self):
+        self.retries = Retry()
+
+    def test_redirect_method(self):
+        tests = [
+            ('GET', 303, 'GET'),
+            ('HEAD', 303, 'HEAD'),
+            ('PUT', 303, 'GET'),
+            ('DELETE', 303, 'GET'),
+            ('POST', 303, 'GET'),
+            ('OPTIONS', 303, 'GET'),
+            ('POST', 301, 'GET'),
+            ('POST', 302, 'GET'),
+            ('OPTIONS', 301, 'OPTIONS'),
+            ('DELETE', 302, 'DELETE')
+        ]
+        for test in tests:
+            self.assertEqual(test[2], self.retries.redirect_method(*test[:2]))

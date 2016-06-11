@@ -270,6 +270,10 @@ class HTTPResponse(io.IOBase):
     def connection(self):
         return self._connection
 
+    def info(self):
+        # Compatibility method for cookie handler
+        return self.headers
+
     def isclosed(self):
         return is_fp_closed(self._fp)
 

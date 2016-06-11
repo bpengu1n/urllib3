@@ -146,6 +146,12 @@ def d():
     header_dict.add('cookie', 'bar')
     return header_dict
 
+    def test_get_all(self):
+        self.assertEqual(self.d.get_all('cookie', None), ['foo', 'bar'])
+
+    def test_get_all_with_default(self):
+        self.assertEqual(self.d.get_all('NOT THERE', {}), {})
+
 
 class TestHTTPHeaderDict(object):
     def test_create_from_kwargs(self):

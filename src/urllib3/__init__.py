@@ -18,7 +18,8 @@ from .util.request import make_headers
 from .util.url import get_host
 from .util.timeout import Timeout
 from .util.retry import Retry
-
+from .util.sessioncontext import SessionContext
+from .sessionmanager import SessionManager
 
 # Set default logging handler to avoid "No handler found" warnings.
 import logging
@@ -33,6 +34,7 @@ __all__ = (
     'HTTPSConnectionPool',
     'PoolManager',
     'ProxyManager',
+    'SessionManager',
     'HTTPResponse',
     'Retry',
     'Timeout',
@@ -43,6 +45,7 @@ __all__ = (
     'get_host',
     'make_headers',
     'proxy_from_url',
+    'SessionContext'
 )
 
 logging.getLogger(__name__).addHandler(NullHandler())

@@ -302,7 +302,7 @@ class PoolManager(RequestMethods):
                     base_pool_kwargs[key] = value
         return base_pool_kwargs
 
-    def urlopen(self, method, url, redirect=True, **kw):
+    def urlopen(self, method, url, redirect=True, retries=None, **kw):
         """
         Same as :meth:`urllib3.connectionpool.HTTPConnectionPool.urlopen`
         with custom cross-host redirect logic and only sends the request-uri
@@ -310,24 +310,31 @@ class PoolManager(RequestMethods):
 
         The given ``url`` parameter must be absolute, such that an appropriate
         :class:`urllib3.connectionpool.ConnectionPool` can be chosen for it.
+
+        This is a low-level method; use :func:`urllib3.request.RequestMethods.request`
+        instead.
         """
         u = parse_url(url)
         conn = self.connection_from_host(u.host, port=u.port, scheme=u.scheme)
-
         kw['assert_same_host'] = False
         kw['redirect'] = False
 
         if 'headers' not in kw:
             kw['headers'] = self.headers.copy()
 
-        if self.proxy is not None and u.scheme == "http":
-            response = conn.urlopen(method, url, **kw)
-        else:
-            response = conn.urlopen(method, u.request_uri, **kw)
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect)
 
-        redirect_location = redirect and response.get_redirect_location()
-        if not redirect_location:
-            return response
+        if self.proxy is not None and u.scheme == "http":
+            response = conn.urlopen(method, url, retries=retries, **kw)
+        else:
+            response = conn.urlopen(method, u.request_uri, retries=retries, **kw)
+
+        if redirect and response.get_redirect_location():
+            kw['redirect'] = redirect
+            return self.redirect(response=response, method=method, retries=retries,
+                                 url=url, pool=conn, **kw)
+        return response
 
         # Support relative URLs for redirecting.
         redirect_location = urljoin(url, redirect_location)
